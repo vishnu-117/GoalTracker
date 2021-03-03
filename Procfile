@@ -1,0 +1,1 @@
+web: gunicorn goaltracker.wsgi --log-file -

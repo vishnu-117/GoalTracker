@@ -25,7 +25,7 @@ SECRET_KEY = 'oi!8_-jt@cqf3c-0-$seu)t@$qd@nvs0p78pjk)8*__$h#+imf'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'goal-tracker-djch.herokuapp.com']
 
 
 # Application definition
