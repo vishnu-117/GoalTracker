@@ -6,10 +6,10 @@ from django.utils.translation import gettext_lazy as _
 class UsersManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, first_name, password=None, *args, **kwargs):
+    def create_user(self, email, name, password=None, *args, **kwargs):
         user = self.model(
             email=email,
-            first_name=first_name,
+            first_name=name,
             *args, **kwargs
         )
         if password is not None:
@@ -18,8 +18,8 @@ class UsersManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, first_name, *args, **kwargs):
-        user = self.create_user(email, first_name, *args, **kwargs)
+    def create_superuser(self, email, name, *args, **kwargs):
+        user = self.create_user(email, name, *args, **kwargs)
         user.is_staff = True
         user.is_superuser = True
         user.admin = True
@@ -27,21 +27,29 @@ class UsersManager(BaseUserManager):
         return user
 
 USER_TYPE = (
-    ('Empoyee', 'Empoyee'),
-    ('Empoyer', 'Empoyer'),
+    ('Employee', 'Employee'),
+    ('Employer', 'Employer'),
     ('Expert', 'Expert')
 )
 
+GENDER = (
+    ('Male', 'Male'),
+    ('Female', 'Female'),
+    ('Other', 'Other')
+)
 
 class Users(AbstractBaseUser, PermissionsMixin):
     username = None
-    first_name = models.CharField(
-        'Name', max_length=128, null=False, blank=False)
-    last_name = models.CharField(max_length=128, null=False, blank=False)
+    name = models.CharField(max_length=128, null=False, blank=False)
     email = models.CharField(max_length=16, unique=True, null=False, blank=False)
-    # email = models.EmailField(null=True, blank=True)
-    # company_id = models.ForeignKey(
-    #     'Companies', null=True, on_delete=models.CASCADE)
+    mobile_number = models.CharField(max_length=15, null=True, blank=True)
+    department = models.CharField(max_length=150, null=True, blank=True)
+    skills = models.CharField(max_length=150, null=True, blank=True)
+    experience = models.CharField(max_length=150, null=True, blank=True)
+    company = models.ForeignKey('Company', on_delete=models.SET_NULL, null=True, blank=True)
+    user_type = models.CharField(choices=USER_TYPE, max_length=100, default='Employee')
+    gender = models.CharField(choices=GENDER, max_length=100, default='Male')
+    password1 = models.CharField(max_length=100, null=True, blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -50,10 +58,14 @@ class Users(AbstractBaseUser, PermissionsMixin):
     )
     is_active = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)
-    user_type = models.CharField(max_length=20, choices=USER_TYPE, default='Empoyer')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name']
+    REQUIRED_FIELDS = ['name']
 
     objects = UsersManager()
 
+class Company(models.Model):
+    name = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
