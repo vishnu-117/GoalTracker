@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from .models import Users, Company
-from .serializers import UserSerializer, LoginSerializer, CompanySerializer
+from .models import Users, Company, Goal, SubGoal
+from .serializers import UserSerializer, LoginSerializer, CompanySerializer, GoalSerializer, SubGoalSerializer
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListModelMixin
+from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.db import transaction
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
@@ -47,3 +47,45 @@ def LoginAPI(request):
 
     return Response(user_data, status=200)
 
+
+class GoalView(ListModelMixin,
+                       CreateModelMixin,
+                       RetrieveModelMixin,
+                       UpdateModelMixin,
+                       DestroyModelMixin,
+                       GenericAPIView):
+    queryset = Goal.objects.filter()
+    serializer_class = GoalSerializer
+    # permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serialized_obj = GoalSerializer(data=request.data,
+                                                context={'user': request.user, 'request': request})
+        if serialized_obj.is_valid():
+            obj = serialized_obj.save()
+        else:
+            return Response(serialized_obj.errors, status=400)
+        return Response(serialized_obj.data, status=200)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        if not serializer.is_valid(raise_exception=False):
+            return Response(serializer.errors, status=400)
+        self.perform_update(serializer)
+        instance.refresh_from_db()
+        return Response(serializer.data, status=200)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    #
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    #
+    # def delete(self, request, *args, **kwargs):
+    #     return self.destroy(request, *args, **kwargs)

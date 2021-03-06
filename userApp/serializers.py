@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import login, authenticate
-from .models import Company, Users
+from .models import Company, Users, Goal, SubGoal
 
 class CompanySerializer(serializers.ModelSerializer):
 
@@ -46,3 +46,34 @@ class LoginSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError({'error': 'email or password is not correct'})
         return data
+
+
+class SubGoalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SubGoal
+        exclude = ['goal', ]
+
+
+class GoalSerializer(serializers.ModelSerializer):
+    subgoal = SubGoalSerializer(many=True, required=False)
+
+    class Meta:
+        model = Goal
+        exclude = []
+
+    def create(self, validated_data):
+        subgoal = validated_data.pop('subgoal', [])
+        goal = Goal.objects.create(**validated_data)
+        if subgoal:
+            subgoal = subgoal[0]
+            SubGoal.objects.create(goal=goal, **subgoal)
+        return goal
+
+    def update(self, instance, validated_data):
+        subgoal = validated_data.pop('subgoal')
+        if subgoal:
+            subgoal = subgoal[0]
+            SubGoal.objects.create(goal=instance, **subgoal)
+        instance = super(GoalSerializer, self).update(instance, validated_data)
+        return instance

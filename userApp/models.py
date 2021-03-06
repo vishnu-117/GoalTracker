@@ -41,7 +41,7 @@ GENDER = (
 class Users(AbstractBaseUser, PermissionsMixin):
     username = None
     name = models.CharField(max_length=128, null=False, blank=False)
-    email = models.CharField(max_length=16, unique=True, null=False, blank=False)
+    email = models.CharField(max_length=50, unique=True, null=False, blank=False)
     mobile_number = models.CharField(max_length=15, null=True, blank=True)
     department = models.CharField(max_length=150, null=True, blank=True)
     skills = models.CharField(max_length=150, null=True, blank=True)
@@ -69,3 +69,27 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+
+class Goal(models.Model):
+    company = models.ForeignKey('company', on_delete=models.CASCADE)
+    goal_name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.goal_name
+
+
+class SubGoal(models.Model):
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, null=True, blank=True)
+    goal = models.ForeignKey('Goal', on_delete=models.CASCADE, related_name='subgoal')
+    title = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    is_personal_goal = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title
