@@ -78,7 +78,7 @@ class Goal(models.Model):
     end_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return self.goal_name
+        return str(self.id)
 
 
 class SubGoal(models.Model):
@@ -92,4 +92,4 @@ class SubGoal(models.Model):
     is_personal_goal = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return str(self.id)
