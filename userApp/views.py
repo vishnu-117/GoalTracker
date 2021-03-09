@@ -7,6 +7,7 @@ from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListMode
 from django.db import transaction
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
 
 
 class CompanyListAPIView(ListModelMixin, GenericAPIView):
@@ -58,6 +59,14 @@ class GoalView(ListModelMixin,
     serializer_class = GoalSerializer
     # permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Goal.objects.filter(company=user.company)
+
     def create(self, request, *args, **kwargs):
         serialized_obj = GoalSerializer(data=request.data,
                                                 context={'user': request.user, 'request': request})
@@ -89,3 +98,19 @@ class GoalView(ListModelMixin,
     #
     # def delete(self, request, *args, **kwargs):
     #     return self.destroy(request, *args, **kwargs)
+
+class UserList(ListModelMixin, GenericAPIView):
+    queryset = Users.objects.filter()
+    serializer_class = UserSerializer
+    # permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Users.objects.filter(company=user.company)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

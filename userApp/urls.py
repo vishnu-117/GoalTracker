@@ -1,4 +1,4 @@
-from .views import UserSignupView, LoginAPI, CompanyListAPIView, GoalView
+from .views import UserSignupView, LoginAPI, CompanyListAPIView, GoalView, UserList
 from django.urls import path
 
 
@@ -9,4 +9,6 @@ urlpatterns = [
     path('login/', LoginAPI),
     path('goal/', GoalView.as_view()),
     path('goal/<int:pk>/', GoalView.as_view()),
+    path('userlist/', UserList.as_view()),
+
 ]

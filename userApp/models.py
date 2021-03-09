@@ -71,11 +71,14 @@ class Company(models.Model):
         return self.name
 
 class Goal(models.Model):
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, null=True, blank=True)
     company = models.ForeignKey('company', on_delete=models.CASCADE)
     goal_name = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    is_personal_goal = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)

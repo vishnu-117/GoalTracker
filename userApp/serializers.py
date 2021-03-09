@@ -63,8 +63,12 @@ class GoalSerializer(serializers.ModelSerializer):
         exclude = []
 
     def create(self, validated_data):
+        user = self.context['request'].user
         subgoal = validated_data.pop('subgoal', [])
         goal = Goal.objects.create(**validated_data)
+        goal.user = user
+        goal.company = user.company
+        goal.save()
         if subgoal:
             subgoal = subgoal[0]
             SubGoal.objects.create(goal=goal, **subgoal)
