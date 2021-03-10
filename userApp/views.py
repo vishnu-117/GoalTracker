@@ -65,7 +65,8 @@ class GoalView(ListModelMixin,
         for the currently authenticated user.
         """
         user = self.request.user
-        return Goal.objects.filter(company=user.company)
+        # return Goal.objects.filter(company=user.company)
+        return Goal.objects.filter()
 
     def create(self, request, *args, **kwargs):
         serialized_obj = GoalSerializer(data=request.data,
@@ -110,7 +111,8 @@ class UserList(ListModelMixin, GenericAPIView):
         for the currently authenticated user.
         """
         user = self.request.user
-        return Users.objects.filter(company=user.company)
+        # return Users.objects.filter(company=user.company)
+        return Users.objects.filter()
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
