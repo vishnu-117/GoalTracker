@@ -64,9 +64,17 @@ class GoalView(ListModelMixin,
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        user = self.request.user
-        # return Goal.objects.filter(company=user.company)
-        return Goal.objects.filter()
+        # if self.request.method == 'get':
+        # import pdb;pdb.set_trace()
+        if self.request.method != 'PUT':
+            user_id = self.request.query_params['user_id']
+            subgoal_list = SubGoal.objects.filter(user=user_id)
+            print(subgoal_list)
+            # import pdb;pdb.set_trace()
+            subgoal_id = [subgoal.goal.id for subgoal in subgoal_list]
+            return Goal.objects.filter(id__in=subgoal_id)
+        else:
+            return Goal.objects.filter()
 
     def create(self, request, *args, **kwargs):
         serialized_obj = GoalSerializer(data=request.data,
@@ -110,9 +118,8 @@ class UserList(ListModelMixin, GenericAPIView):
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        user = self.request.user
-        # return Users.objects.filter(company=user.company)
-        return Users.objects.filter()
+        company_id = self.request.query_params['company_id']
+        return Users.objects.filter(company=company_id)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

@@ -49,6 +49,7 @@ class LoginSerializer(serializers.Serializer):
 
 
 class SubGoalSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
 
     class Meta:
         model = SubGoal
@@ -63,12 +64,12 @@ class GoalSerializer(serializers.ModelSerializer):
         exclude = []
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        # user = self.context['request'].user
         subgoal = validated_data.pop('subgoal', [])
         goal = Goal.objects.create(**validated_data)
-        goal.user = user
-        goal.company = user.company
-        goal.save()
+        # goal.user = user
+        # goal.company = user.company
+        # goal.save()
         if subgoal:
             subgoal = subgoal[0]
             SubGoal.objects.create(goal=goal, **subgoal)
@@ -76,8 +77,14 @@ class GoalSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         subgoal = validated_data.pop('subgoal')
-        if subgoal:
-            subgoal = subgoal[0]
-            SubGoal.objects.create(goal=instance, **subgoal)
+        for subgoal in subgoal:
+            pk = subgoal.get('id')
+            if pk:
+                pass
+            else:
+                pass
+            # if subgoal:
+            #     subgoal = subgoal[0]
+                SubGoal.objects.create(goal=instance, **subgoal)
         instance = super(GoalSerializer, self).update(instance, validated_data)
         return instance
