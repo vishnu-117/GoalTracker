@@ -91,6 +91,8 @@ ipython_config.py
 Pipfile.lock
 Pipfile
 static
+staticfiles/
+
 
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow

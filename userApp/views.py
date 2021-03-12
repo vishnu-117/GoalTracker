@@ -64,17 +64,15 @@ class GoalView(ListModelMixin,
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        # if self.request.method == 'get':
-        # import pdb;pdb.set_trace()
-        if self.request.method != 'PUT':
-            user_id = self.request.query_params['user_id']
-            subgoal_list = SubGoal.objects.filter(user=user_id)
-            print(subgoal_list)
-            # import pdb;pdb.set_trace()
-            subgoal_id = [subgoal.goal.id for subgoal in subgoal_list]
+        if self.request.user.user_type == 'Employer' and self.request.method.lower() == 'get':
+            return Goal.objects.filter(created_by=self.request.user.created_by)
+        elif self.request.user.user_type == 'Employee' and self.request.method.lower() == 'get':
+            subgoal_qs = SubGoal.objects.filter(user=self.request.user)
+            subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
             return Goal.objects.filter(id__in=subgoal_id)
         else:
             return Goal.objects.filter()
+
 
     def create(self, request, *args, **kwargs):
         serialized_obj = GoalSerializer(data=request.data,
@@ -97,6 +95,8 @@ class GoalView(ListModelMixin,
         return Response(serializer.data, status=200)
 
     def get(self, request, *args, **kwargs):
+        if 'pk' in kwargs:
+            return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
@@ -118,8 +118,8 @@ class UserList(ListModelMixin, GenericAPIView):
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        company_id = self.request.query_params['company_id']
-        return Users.objects.filter(company=company_id)
+        # company_id = self.request.query_params['company_id']
+        return Users.objects.filter(company=self.request.user.company)
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
