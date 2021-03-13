@@ -6,6 +6,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.db import transaction
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 
@@ -13,6 +14,8 @@ from rest_framework.views import APIView
 class CompanyListAPIView(ListModelMixin, GenericAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permission_classes = [IsAuthenticated]
+
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -21,6 +24,8 @@ class CompanyListAPIView(ListModelMixin, GenericAPIView):
 class UserSignupView(CreateModelMixin, GenericAPIView):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
+    permission_classes = []
+
 
     def post(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data, partial=True)
@@ -37,7 +42,6 @@ class UserSignupView(CreateModelMixin, GenericAPIView):
 
 
 @api_view(['POST'])
-@csrf_exempt
 def LoginAPI(request):
     loginserializer = LoginSerializer(
         data=request.data, context={'request': request})
@@ -49,6 +53,14 @@ def LoginAPI(request):
     return Response(user_data, status=200)
 
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def LogoutAPI(request):
+    token, created = Token.objects.get_or_create(user=request.user)
+    token.delete()
+    logout(request)
+    return APIResponse(status=200)
+
 class GoalView(ListModelMixin,
                        CreateModelMixin,
                        RetrieveModelMixin,
@@ -57,7 +69,7 @@ class GoalView(ListModelMixin,
                        GenericAPIView):
     queryset = Goal.objects.filter()
     serializer_class = GoalSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -111,7 +123,7 @@ class GoalView(ListModelMixin,
 class UserList(ListModelMixin, GenericAPIView):
     queryset = Users.objects.filter()
     serializer_class = UserSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
