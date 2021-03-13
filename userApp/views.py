@@ -7,6 +7,7 @@ from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListMode
 from django.db import transaction
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 
@@ -14,7 +15,7 @@ from rest_framework.views import APIView
 class CompanyListAPIView(ListModelMixin, GenericAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
 
     def get(self, request, *args, **kwargs):
@@ -48,9 +49,11 @@ def LoginAPI(request):
     if not loginserializer.is_valid():
         return Response(data=loginserializer.errors, status=403)
 
+    token, created = Token.objects.get_or_create(user=request.user)
     user_data = UserSerializer(request.user).data
 
-    return Response(user_data, status=200)
+    return Response(data = {'user_data':user_data,
+                            'access_token': str(token)}, status=200)
 
 
 @api_view(['GET', 'POST'])
