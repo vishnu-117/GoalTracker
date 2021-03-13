@@ -80,7 +80,7 @@ class GoalView(ListModelMixin,
         for the currently authenticated user.
         """
         if self.request.user.user_type == 'Employer' and self.request.method.lower() == 'get':
-            return Goal.objects.filter(created_by=self.request.user.created_by)
+            return Goal.objects.filter(created_by=self.request.user)
         elif self.request.user.user_type == 'Employee' and self.request.method.lower() == 'get':
             subgoal_qs = SubGoal.objects.filter(user=self.request.user)
             subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
