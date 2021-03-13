@@ -77,14 +77,14 @@ class GoalSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         subgoal = validated_data.pop('subgoal')
-        for subgoal in subgoal:
-            pk = subgoal.get('id')
+        for subgoal_data in subgoal:
+            pk = subgoal_data.get('id')
             if pk:
-                pass
+                subgoal = SubGoal.objects.get(id=pk)
+                for i in subgoal_data:
+                    setattr(subgoal, i, subgoal_data[i])
+                subgoal.save()
             else:
-                pass
-            # if subgoal:
-            #     subgoal = subgoal[0]
                 SubGoal.objects.create(goal=instance, **subgoal)
         instance = super(GoalSerializer, self).update(instance, validated_data)
         return instance
