@@ -1,4 +1,5 @@
-from .views import UserSignupView, LoginAPI, CompanyListAPIView, GoalView, UserList, LogoutAPI, graphApi
+from .views import UserSignupView, LoginAPI, CompanyListAPIView, GoalView, UserList, LogoutAPI, graphApi, \
+    ChatView
 from django.urls import path
 
 
@@ -12,5 +13,5 @@ urlpatterns = [
     path('goal/<int:pk>/', GoalView.as_view()),
     path('userlist/', UserList.as_view()),
     path('graphapi/', graphApi.as_view()),
-
+    path('chat/', ChatView.as_view()),
 ]

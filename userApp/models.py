@@ -97,3 +97,12 @@ class SubGoal(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+class Chat(models.Model):
+    goal = models.ForeignKey('Goal', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    message = models.TextField()
+
+    def __str__(self):
+        return self.message

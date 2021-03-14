@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.db.models import Q
-from .models import Users, Company, Goal, SubGoal
-from .serializers import UserSerializer, LoginSerializer, CompanySerializer, GoalSerializer, SubGoalSerializer
+from .models import Users, Company, Goal, SubGoal, Chat
+from .serializers import UserSerializer, LoginSerializer, CompanySerializer, GoalSerializer, SubGoalSerializer, \
+    ChatSerializer
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListModelMixin, UpdateModelMixin, DestroyModelMixin
@@ -180,3 +181,25 @@ class graphApi(APIView):
             data['pending_goal_name'] = [pending_subgoal_name[0] for pending_subgoal_name in pending_subgoal_name]
             return Response(data)
 
+
+class ChatView(ListModelMixin,
+                CreateModelMixin,
+                DestroyModelMixin,
+                GenericAPIView):
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        goal_id = self.request.query_params['goal_id']
+        return Chat.objects.filter(goal=goal_id)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)

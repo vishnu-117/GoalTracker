@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import login, authenticate
-from .models import Company, Users, Goal, SubGoal
+from .models import Company, Users, Goal, SubGoal, Chat
 
 class CompanySerializer(serializers.ModelSerializer):
 
@@ -85,7 +85,13 @@ class GoalSerializer(serializers.ModelSerializer):
                     setattr(subgoal, i, subgoal_data[i])
                 subgoal.save()
             else:
-                print('>>>>>>>>>>>>>')
                 SubGoal.objects.create(goal=instance, **subgoal_data)
         instance = super(GoalSerializer, self).update(instance, validated_data)
         return instance
+
+
+class ChatSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Chat
+        exclude = []
