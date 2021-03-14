@@ -85,6 +85,7 @@ class GoalSerializer(serializers.ModelSerializer):
                     setattr(subgoal, i, subgoal_data[i])
                 subgoal.save()
             else:
-                SubGoal.objects.create(goal=instance, **subgoal)
+                print('>>>>>>>>>>>>>')
+                SubGoal.objects.create(goal=instance, **subgoal_data)
         instance = super(GoalSerializer, self).update(instance, validated_data)
         return instance

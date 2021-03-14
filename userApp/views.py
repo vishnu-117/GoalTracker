@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from .models import Users, Company, Goal, SubGoal
 from .serializers import UserSerializer, LoginSerializer, CompanySerializer, GoalSerializer, SubGoalSerializer
 from rest_framework.response import Response
@@ -133,8 +134,49 @@ class UserList(ListModelMixin, GenericAPIView):
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        # company_id = self.request.query_params['company_id']
-        return Users.objects.filter(company=self.request.user.company)
+        expert = self.request.query_params
+        user_list = Users.objects.filter(company=self.request.user.company)
+        if expert:
+            return user_list.filter(user_type='Expert')
+        return user_list
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+
+class graphApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        data = {}
+        if request.user.user_type == 'Employee' or request.user.user_type == 'Expert':
+            subgoal_list = SubGoal.objects.filter(user=self.request.user)
+            subgoal_count = subgoal_list.count()
+            rescheduled = subgoal_list.filter(is_reschedule=True).count()
+            completed = subgoal_list.filter(is_completed=True).count()
+            pending_subgoal_name = list(subgoal_list.filter(Q(is_completed=False) & Q(is_reschedule=False)).values_list('title'))
+            completed_subgoal_name = list(subgoal_list.filter(is_completed=True).values_list('title'))
+            rescheduled_subgoal_name = list(subgoal_list.filter(is_reschedule=True).values_list('title'))
+            data['completed'] = completed
+            data['completed_goal_name'] = [completed_subgoal_name[0] for completed_subgoal_name in completed_subgoal_name]
+            data['rescheduled'] = rescheduled
+            data['rescheduled_goal_name'] = [rescheduled_subgoal_name[0] for rescheduled_subgoal_name in rescheduled_subgoal_name]
+            data['pending'] =  subgoal_count - (completed + rescheduled)
+            data['pending_goal_name'] = [pending_subgoal_name[0] for pending_subgoal_name in pending_subgoal_name]
+            return Response(data)
+        else:
+            goal_list = Goal.objects.filter(created_by=self.request.user)
+            goal_count = goal_list.count()
+            rescheduled = goal_list.filter(is_reschedule=True).count()
+            pending_subgoal_name = list(goal_list.filter(Q(is_completed=False) & Q(is_reschedule=False)).values_list('goal_name'))
+            completed_subgoal_name = list(goal_list.filter(is_completed=True).values_list('goal_name'))
+            rescheduled_subgoal_name = list(goal_list.filter(is_reschedule=True).values_list('goal_name'))
+            completed = goal_list.filter(is_completed=True).count()
+            data['completed'] = completed
+            data['completed_goal_name'] = [completed_subgoal_name[0] for completed_subgoal_name in completed_subgoal_name]
+            data['rescheduled'] = rescheduled
+            data['rescheduled_goal_name'] = [rescheduled_subgoal_name[0] for rescheduled_subgoal_name in rescheduled_subgoal_name]
+            data['pending'] =  goal_count - (completed + rescheduled)
+            data['pending_goal_name'] = [pending_subgoal_name[0] for pending_subgoal_name in pending_subgoal_name]
+            return Response(data)
+
