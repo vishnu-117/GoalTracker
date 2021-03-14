@@ -9,7 +9,7 @@ class UsersManager(BaseUserManager):
     def create_user(self, email, name, password=None, *args, **kwargs):
         user = self.model(
             email=email,
-            first_name=name,
+            name=name,
             *args, **kwargs
         )
         if password is not None:
