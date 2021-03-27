@@ -12,7 +12,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
-
+from datetime import date, datetime, timedelta
+from django.utils import timezone
 
 class CompanyListAPIView(ListModelMixin, GenericAPIView):
     queryset = Company.objects.all()
@@ -82,8 +83,20 @@ class GoalView(ListModelMixin,
         for the currently authenticated user.
         """
         if self.request.user.user_type == 'Employer' and self.request.method.lower() == 'get':
+            # if query.get('is_employee') == 'false':
+            if query.get('is_employee') == 'false':
+                subgoal_qs = SubGoal.objects.filter(goal__company=self.request.user.company).filter(is_personal_goal=True)
+                subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
+                return Goal.objects.filter(id__in=subgoal_id)
             return Goal.objects.filter(created_by=self.request.user)
         elif self.request.user.user_type == 'Employee' and self.request.method.lower() == 'get':
+            query = self.request.query_params
+            # print(query.get('is_employee'))
+            if query.get('is_employee') == 'true':
+                subgoal_qs = SubGoal.objects.filter(user=self.request.user).filter(is_personal_goal=True)
+                subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
+                return Goal.objects.filter(id__in=subgoal_id)
+
             subgoal_qs = SubGoal.objects.filter(user=self.request.user)
             subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
             return Goal.objects.filter(id__in=subgoal_id)
@@ -203,3 +216,20 @@ class ChatView(ListModelMixin,
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+
+class NotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        data = {}
+        if request.user.user_type == 'Employee' or request.user.user_type == 'Expert':
+            subgoal_list = SubGoal.objects.filter(user=self.request.user)
+            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title'))
+            data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
+            return Response(data)
+        else:
+            subgoal_list = Goal.objects.filter(created_by=self.request.user)
+            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title'))
+            data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
+            return Response(data)

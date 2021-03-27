@@ -50,6 +50,10 @@ class LoginSerializer(serializers.Serializer):
 
 class SubGoalSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    start_date = serializers.DateTimeField(
+        input_formats=['%d-%m-%Y'], format='%d-%m-%Y', required=False)
+    end_date = serializers.DateTimeField(
+        input_formats=['%d-%m-%Y'], format='%d-%m-%Y', required=False)
 
     class Meta:
         model = SubGoal
@@ -58,6 +62,10 @@ class SubGoalSerializer(serializers.ModelSerializer):
 
 class GoalSerializer(serializers.ModelSerializer):
     subgoal = SubGoalSerializer(many=True, required=False)
+    start_date = serializers.DateTimeField(
+        input_formats=['%d-%m-%Y'], format='%d-%m-%Y', required=False)
+    end_date = serializers.DateTimeField(
+        input_formats=['%d-%m-%Y'], format='%d-%m-%Y', required=False)
 
     class Meta:
         model = Goal

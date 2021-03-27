@@ -83,12 +83,20 @@ WSGI_APPLICATION = 'goaltracker.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'd667ifk8vktcl9',
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': 'ec2-54-89-49-242.compute-1.amazonaws.com',
+        'PORT': '5432',
+        'USER': 'aeptyrwxqmkgqe',
+        'PASSWORD': '6ded94cbc4b2e9fd0bfb66585e5f43ff0862022e515eb0b39d81726c17f4ff1e'
     }
 }
 
 REST_FRAMEWORK = {
+    'DATE_INPUT_FORMATS': ["%d-%M-%Y", "%Y-%M-%d"],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],

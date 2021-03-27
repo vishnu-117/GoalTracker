@@ -1,5 +1,5 @@
 from .views import UserSignupView, LoginAPI, CompanyListAPIView, GoalView, UserList, LogoutAPI, graphApi, \
-    ChatView
+    ChatView, NotificationView
 from django.urls import path
 
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('userlist/', UserList.as_view()),
     path('graphapi/', graphApi.as_view()),
     path('chat/', ChatView.as_view()),
+    path('notification/', NotificationView.as_view()),
 ]

@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
+from datetime import date
+
+today = date.today()
 
 
 class UsersManager(BaseUserManager):
@@ -75,8 +78,8 @@ class Goal(models.Model):
     company = models.ForeignKey('company', on_delete=models.CASCADE)
     goal_name = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     is_reschedule = models.BooleanField(default=False)
 
@@ -89,8 +92,8 @@ class SubGoal(models.Model):
     goal = models.ForeignKey('Goal', on_delete=models.CASCADE, related_name='subgoal')
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     is_personal_goal = models.BooleanField(default=False)
     is_reschedule = models.BooleanField(default=False)
