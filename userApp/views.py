@@ -82,6 +82,7 @@ class GoalView(ListModelMixin,
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
+        query = self.request.query_params
         if self.request.user.user_type == 'Employer' and self.request.method.lower() == 'get':
             # if query.get('is_employee') == 'false':
             if query.get('is_employee') == 'false':
@@ -90,7 +91,6 @@ class GoalView(ListModelMixin,
                 return Goal.objects.filter(id__in=subgoal_id)
             return Goal.objects.filter(created_by=self.request.user)
         elif self.request.user.user_type == 'Employee' and self.request.method.lower() == 'get':
-            query = self.request.query_params
             # print(query.get('is_employee'))
             if query.get('is_employee') == 'true':
                 subgoal_qs = SubGoal.objects.filter(user=self.request.user).filter(is_personal_goal=True)
