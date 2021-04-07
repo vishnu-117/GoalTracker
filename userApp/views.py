@@ -229,7 +229,8 @@ class NotificationView(APIView):
             data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
             return Response(data)
         else:
-            subgoal_list = Goal.objects.filter(created_by=self.request.user)
-            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title'))
+            subgoal_list = [goal.id for goal in Goal.objects.filter(created_by=self.request.user)]
+            subgoal_list = SubGoal.objects.filter(goal__id__in=subgoal_list)
+            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title', 'end_date', named=True))
             data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
             return Response(data)
