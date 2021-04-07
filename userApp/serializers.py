@@ -54,12 +54,14 @@ class SubGoalSerializer(serializers.ModelSerializer):
         input_formats=['%d-%m-%Y'], format='%d-%m-%Y', required=False)
     end_date = serializers.DateTimeField(
         input_formats=['%d-%m-%Y'], format='%d-%m-%Y', required=False)
+    user_name = serializers.SerializerMethodField()
 
     class Meta:
         model = SubGoal
         exclude = ['goal', ]
 
-
+    def get_user_name(self, obj):
+        return obj.user.name
 class GoalSerializer(serializers.ModelSerializer):
     subgoal = SubGoalSerializer(many=True, required=False)
     start_date = serializers.DateTimeField(
