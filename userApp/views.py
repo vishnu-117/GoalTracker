@@ -99,6 +99,8 @@ class GoalView(ListModelMixin,
 
             subgoal_qs = SubGoal.objects.filter(user=self.request.user)
             subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
+            if not subgoal_id:
+                return Goal.objects.filter(created_by=self.request.user)
             return Goal.objects.filter(id__in=subgoal_id)
         else:
             return Goal.objects.filter()
