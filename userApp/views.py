@@ -99,8 +99,8 @@ class GoalView(ListModelMixin,
 
             subgoal_qs = SubGoal.objects.filter(user=self.request.user)
             subgoal_id = [subgoal.goal.id for subgoal in subgoal_qs]
-            if not subgoal_id:
-                return Goal.objects.filter(created_by=self.request.user)
+            # if not subgoal_id:
+            #     return Goal.objects.filter(created_by=self.request.user)
             return Goal.objects.filter(id__in=subgoal_id)
         else:
             return Goal.objects.filter()
@@ -227,12 +227,14 @@ class NotificationView(APIView):
         data = {}
         if request.user.user_type == 'Employee' or request.user.user_type == 'Expert':
             subgoal_list = SubGoal.objects.filter(user=self.request.user)
-            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title'))
-            data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
+            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title', 'end_date', 'description'))
+            # data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
+            data['subgoal_list'] = subgoal_list
             return Response(data)
         else:
             subgoal_list = [goal.id for goal in Goal.objects.filter(created_by=self.request.user)]
             subgoal_list = SubGoal.objects.filter(goal__id__in=subgoal_list)
-            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title', 'end_date', named=True))
-            data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
+            subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title', 'end_date', 'description'))
+            # data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
+            data['subgoal_list'] = subgoal_list
             return Response(data)
