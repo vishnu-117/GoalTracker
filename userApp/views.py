@@ -227,7 +227,8 @@ class NotificationView(APIView):
     def get(self, request, format=None):
         data = {}
         if request.user.user_type == 'Employee' or request.user.user_type == 'Expert':
-            subgoal_list = SubGoal.objects.filter(user=self.request.user)
+            goal_ids = [goal.id for goal in Goal.objects.filter(created_by=self.request.user)]
+            subgoal_list = SubGoal.objects.filter(Q(user=self.request.user) | Q(goal__id__in=goal_ids))
             subgoal_list = list(subgoal_list.filter(end_date__date__lte=timezone.now() + timedelta(2)).values_list('title', 'end_date', 'description'))
             # data['subgoal_list'] = [subgoal_list[0] for subgoal_list in subgoal_list]
             data['subgoal_list'] = subgoal_list
