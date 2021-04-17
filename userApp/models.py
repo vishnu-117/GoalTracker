@@ -82,6 +82,7 @@ class Goal(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
     is_completed = models.BooleanField(default=False)
     is_reschedule = models.BooleanField(default=False)
+    is_personal_goal = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)
